@@ -1,0 +1,13 @@
+package com.abm.leaseFlow;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class LeaseFlowApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
