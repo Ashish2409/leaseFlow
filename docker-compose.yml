@@ -1,0 +1,41 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: leaseflow-postgres
+    environment:
+      POSTGRES_DB: leaseflow
+      POSTGRES_USER: leaseflow
+      POSTGRES_PASSWORD: leaseflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leaseflow -d leaseflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: leaseflow-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/leaseflow
+      SPRING_DATASOURCE_USERNAME: leaseflow
+      SPRING_DATASOURCE_PASSWORD: leaseflow
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-prod-must-be-at-least-256-bits-long-for-hs256}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
